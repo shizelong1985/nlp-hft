@@ -8,12 +8,13 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-df = pd.read_csv('./data/ratings_shuffled.csv')
+df = pd.read_csv('../data/ratings_shuffled.csv')
 
 # Data preparation (split into 8:1:1)
 training_data, temp = train_test_split(df, train_size=0.8)
 validation_data, test_data = train_test_split(temp, train_size=0.5)
 
+training_data.reset_index(drop=True, inplace=True)
 validation_data.reset_index(drop=True, inplace=True)
 test_data.reset_index(drop=True, inplace=True)
 
@@ -23,7 +24,7 @@ val_utilmat = UtilMat(validation_data)
 test_utilmat = UtilMat(test_data)
 
 # Using latent factor model for prediction
-lf = LatentFactor(n=100, learning_rate=0.01, lmbda=0.1, verbose=True)
+lf = LatentFactor(K=5, learning_rate=0.01, lamb=0.1, verbose=True)
 
 # Training the model
 try:
@@ -42,7 +43,7 @@ fig, ax = plt.subplots()
 ax.plot(np.arange(0, l), train_loss, color='red', label='Training loss')
 ax.plot(np.arange(0, l), val_loss, color='blue', label='Validation loss')
 ax.set_xlabel('Iterations')
-ax.set_ylabel('RMSE')
+ax.set_ylabel('MSE')
 ax.set_title('Loss curve')
 ax.legend()
 

@@ -17,7 +17,7 @@ validation_data.reset_index(drop=True, inplace=True)
 test_data.reset_index(drop=True, inplace=True)
 
 # Using latent factor model for prediction
-lf = LatentFactorModel(n=100, lamb=0.01, verbose=True)
+lf = LatentFactorModel(K=5, lamb=0.1, verbose=True)
 
 # Training the model
 lf.fit(training_data)
