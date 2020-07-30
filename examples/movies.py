@@ -27,12 +27,8 @@ test_utilmat = UtilMat(test_data)
 lf = LatentFactor(K=5, learning_rate=0.01, lamb=0.1, verbose=True)
 
 # Training the model
-try:
-    lf.fit(train_utilmat, iters=10, val_utilmat=val_utilmat)
-except BaseException as e:
-    print('Error: ', e)
-    # lf.save('tmp')
-    exit()
+lf.fit(train_utilmat, iters=10, val_utilmat=val_utilmat)
+
 
 train_loss = lf.history['train_loss']
 val_loss = lf.history['val_loss']

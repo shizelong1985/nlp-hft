@@ -1,10 +1,8 @@
 import numpy as np
-import math
-from models.abstract import AbstractModel
 from collections import defaultdict
 from sklearn.metrics import mean_squared_error
-from scipy.optimize import fmin_l_bfgs_b
 from scipy.optimize import minimize
+from .utilmat import UtilMat
 
 
 class LatentFactor(object):
@@ -31,22 +29,27 @@ class LatentFactor(object):
         self.Q = (np.random.random((self.K, 3952 + 1)) * 2 - 1) / self.K * 10
 
         # Stores model history
-        self.history = {'train_loss': [], 'val_loss': []}
+        self.history = {'loss': [], 'val_loss': []}
 
-    def fit(self, utilmat, iters, val_utilmat):
+    def fit(self, df, df_val, user_id='userid', item_id='movieid', rating_id='rating', iters=10):
         '''
         Helper function:
             Implements SGD with learnable bias
         '''
+
+        utilmat = UtilMat(df.reset_index(drop=True, inplace=True), user_id, item_id, rating_id)
+
+        if df_val is not None:
+            val_utilmat = UtilMat(df_val.reset_index(drop=True, inplace=True), user_id, item_id, rating_id)
+
         P = self.P
         Q = self.Q
         um = utilmat.um
-        # gloabal average rating
+        # global average rating
         mu = utilmat.mu
         bx = np.random.random(P.shape[0]) * 2 - 1
         bi = np.random.random(Q.shape[1]) * 2 - 1
         # Error function:
-        # exi = rxi - mu - bx - bi - px.T * qi
         for i in range(iters):
             for user in um:
                 for movie in um[user]:
@@ -74,16 +77,13 @@ class LatentFactor(object):
                 print('Iteration {}'.format(i + 1))
                 tloss = self.calc_loss(utilmat)
                 print('Training Loss: ', tloss)
-                self.history['train_loss'].append(tloss)
-                if val_utilmat:
+                self.history['loss'].append(tloss)
+                if df_val is not None:
                     vloss = self.calc_loss(val_utilmat)
                     print('Validation Loss: ', vloss)
                     self.history['val_loss'].append(vloss)
 
     def predict(self, user, movie):
-        '''
-        Finds predicted rating for the user-movie pair
-        '''
         mu = self.utilmat.mu
         bx = self.utilmat.bx
         bi = self.utilmat.bi
@@ -92,29 +92,20 @@ class LatentFactor(object):
         bxi += np.dot(self.P[user, :], self.Q[:, movie])
         return bxi
 
-    def calc_loss(self, utilmat, get_mae=False):
-        '''
-        Finds the RMSE loss (optional MAE)
-        '''
+    def calc_loss(self, utilmat):
         um = utilmat.um
         mu = utilmat.mu
         bx = utilmat.bx
         bi = utilmat.bi
         cnt = 0
         mse = 0
-        mae = 0
         for user in um:
             for movie in um[user]:
                 y = um[user][movie]
                 yhat = mu + bx[user] + bi[movie] + np.dot(self.P[user, :], self.Q[:, movie])
                 mse += (y - yhat) ** 2
-                mae += abs(y - yhat)
                 cnt += 1
         mse /= cnt
-        mae /= cnt
-        rmse = math.sqrt(mse)
-        if get_mae:
-            return mse, mae
         return mse
 
 
@@ -154,19 +145,19 @@ class LatentFactorModel(object):
         self.itemGamma = {}
 
         # initializations
-        self.num_params = 1 + self.nUsers + self.nItems + self.K * self.nUsers + self.K * self.nItems
         alpha = np.mean(df[rating_id])
-        # beta_u = [0.0] * self.nUsers
-        # beta_i = [0.0] * self.nItems
         beta_u = list((avgReviewsPerUser - alpha).values)
         beta_i = list((avgReviewsPerItem - alpha).values)
         gamma_u = list(np.random.random(self.K * self.nUsers) * 2 - 1)
         gamma_i = list(np.random.random(self.K * self.nItems) * 2 - 1)
         self.init = [alpha] + beta_u + beta_i + gamma_u + gamma_i
 
+        self.num_params = 1 + self.nUsers + self.nItems + self.K * self.nUsers + self.K * self.nItems
+        self.N = len(df)
+
         return
 
-    def fit(self, df, user_id='userid', item_id='movieid', rating_id='rating', **kwargs):
+    def fit(self, df, user_id='userid', item_id='movieid', rating_id='rating'):
         self.user_id = user_id
         self.item_id = item_id
         self.rating_id = rating_id
@@ -174,13 +165,12 @@ class LatentFactorModel(object):
         self.dataset = df.to_dict('records')
         self.initialize_data(df, user_id, item_id, rating_id)
 
-        # res = fmin_l_bfgs_b(self.cost, self.init, self.jac, args=[self.lamb], **kwargs)
-        # flag = res[2]['warnflag']
-        # if flag != 0:
-        #     print('W: Optimization has not converged.')
-
+        if self.verbose:
+            iprint = 1
+        else:
+            iprint = -1
         self.opt = minimize(self.cost, x0=self.init, jac=self.jac, args=(self.lamb), method='L-BFGS-B',
-                       options={'maxiter': 2500, 'gtol': 1e-5, 'iprint':1})
+                            options={'maxiter': 2500, 'iprint': iprint})
         if self.opt['success'] is False:
             print('W: Optimization has not converged.')
         return
@@ -212,12 +202,12 @@ class LatentFactorModel(object):
 
     def cost(self, theta, lamb):
         self.unpack(theta)
-        y = [d[self.rating_id] for d in self.dataset]
         y_pred = [self._predict(d[self.user_id], d[self.item_id]) for d in self.dataset]
-        cost = mean_squared_error(y, y_pred)
-        self.history['loss'].append(cost)
+        # cost = mean_squared_error(y, y_pred)
+        cost = np.sum((self.y-y_pred)**2)
+        self.history['loss'].append(cost/self.N)
         if self.verbose:
-            print('MSE = ' + str(cost))
+            print('MSE = ' + str(cost/self.N))
         for u in self.userBiases:
             cost += lamb * self.userBiases[u] ** 2
             for k in range(self.K):
@@ -230,7 +220,7 @@ class LatentFactorModel(object):
 
     def jac(self, theta, lamb):
         self.unpack(theta)
-        N = len(self.y)
+        N = 1#len(self.y)
         dalpha = 0
         dUserBiases = defaultdict(float)
         dItemBiases = defaultdict(float)

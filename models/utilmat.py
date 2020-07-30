@@ -3,7 +3,7 @@ class UtilMat:
     Utility matrix abstraction for storing user - movie ratings
     '''
 
-    def __init__(self, df):
+    def __init__(self, df, user_id='userid', item_id='movieid', rating_id='rating_id'):
         '''
         Accepts a dataframe and generates the utility matrix
         Arguments:
@@ -24,9 +24,9 @@ class UtilMat:
         l = len(df)
         rating_sum = 0
         for i in range(l):
-            user = df.loc[i, 'userid']
-            movie = df.loc[i, 'movieid']
-            rating = df.loc[i, 'rating']
+            user = df.loc[i, user_id]
+            movie = df.loc[i, item_id]
+            rating = df.loc[i, rating_id]
             rating_sum += rating
             if um.get(user):
                 um[user][movie] = rating
@@ -61,6 +61,3 @@ class UtilMat:
             bi[movie] = bi[movie] - self.mu
         self.bx = bx
         self.bi = bi
-        # Maximum ID nos for users and movies
-        self.MXUSER = 6040
-        self.MXMOVIE = 3952
