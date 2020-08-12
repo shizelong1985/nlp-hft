@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010, Dow Jones & Company, Inc.  -->
+
+<!--
+	SCCS status info: %W%	%E% 
+
+Revision History:
+
+	Version 1.0a - 2001/06/01 - First Release
+	Version 1.0b - 2003/04/04 - Add support for multi-line headlines
+	Version 1.0b - 2005/06/29 - Added language "ru"
+	Version 1.0b - 2007/08/20 - Added djn-function
+	Version 1.0c - 2009/07/02 - Added summary; Added japanese, chinese, arabic
+	Version 1.0d - 2009/09/15 - Added derived data section
+	Version 1.0f - 2010/01/13 - Added turkish, greek
+	Version 1.0g - 2010/07/23 - Added korean, farsi
+	Version 1.0h - 2010/12/01 - Added supplemental-coding section
+	Version 1.0i - 2012/04/02 - Updated DJN-Languages
+	Version 1.0j - 2012/10/03 - Added significance markup
+	Version 1.0k - 2013/07/18 - Added DJII codes
+	Version 1.0l - 2016/09/28 - Added TR codes
+	Version 1.0m - 2017/05/23 - Added WSJID, Third party meta data
+-->
+
+<!-- ****************************************************************** -->
+
+<!-- The following entities are lists of legal values.  -->
+
+<!ENTITY % DJN-Publishers "DJN">
+<!ENTITY % DJN-MCodes "0">
+<!ENTITY % DJN-HeadlineBrands "DJ">
+<!ENTITY % DJN-Urgency "0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9" >
+<!ENTITY % DJN-Flag "Y | N" >
+<!ENTITY % DJN-Temp-Perm "T | P" >
+<!ENTITY % DJN-Retention "N | X" >
+<!ENTITY % DJN-PressCut " S | N | T" >
+
+<!-- ISO639'-'ISO3166 -->
+<!ENTITY % DJN-Languages "ar | zh | zh-cn | zh-tw | nl | en-us | fa | pe | fr | de | el | it | ja | ko | pt | ru | es | tr | en | ge">
+
+<!-- ****************************************************************** -->
+<!-- ****************************************************************** -->
+
+<!-- xml: namespaced and very common attributes we recognize widely -->
+
+<!ENTITY % xml "id ID #IMPLIED 
+	xml:lang ( %DJN-Languages; ) 'en-us' 
+	xml:dir (ltr | rtl) #IMPLIED
+" >
+
+<!ENTITY % xlink
+	"xmlns:xlink CDATA #FIXED 'http://www.w3.org/1999/xlink'
+	xlink:type (simple|extended|locator|arc) 'simple' 
+	xlink:role CDATA #IMPLIED
+	xlink:arcrole CDATA #IMPLIED
+	xlink:title CDATA #IMPLIED
+	xlink:show (new|replace|embed|undefined) #REQUIRED 
+	xlink:actuate (onRequest|onLoad|undefined) 'onRequest' 
+	xlink:href CDATA #REQUIRED 
+	xlink:to CDATA #IMPLIED
+	xlink:from CDATA #IMPLIED
+" >
+
+<!-- ****************************************************************** -->
+<!-- ****************************************************************** -->
+
+<!-- Things we allow in "text" -->
+
+<!ENTITY % text "#PCDATA | a | p | pre" >
+
+<!-- ****************************************************************** -->
+<!-- doc : The root element -->
+
+<!ELEMENT doc (djnml)>
+<!ELEMENT djnml (administration?, (head, body)?)>
+
+<!-- ****************************************************************** -->
+<!-- Administrative messages -->
+
+<!ELEMENT administration (
+	doc-retransmission?
+	, bulk-download?
+	, line-check?
+	, (good-day?
+		| blast-complete?
+		| (doc-delete* 
+			, operational-notice*
+			, doc-modify*
+		)
+	)
+)>
+
+<!ELEMENT line-check EMPTY>
+<!ELEMENT blast-complete EMPTY>
+<!ELEMENT doc-retransmission EMPTY>
+<!ELEMENT doc-delete EMPTY>
+<!ELEMENT operational-notice (#PCDATA)>
+<!ELEMENT bulk-download EMPTY>
+<!ELEMENT good-day EMPTY>
+
+<!ELEMENT doc-modify (modify-replace)* >
+<!ELEMENT modify-replace (
+	djn-press-cutout 
+	| djn-urgency 
+	| djn-mdata 
+	| text 
+	| headline
+	| summary
+)>
+
+<!-- ****************************************************************** -->
+<!-- head: Doc info and other data in support of the document -->
+
+<!ELEMENT head (copyright?, docdata)> 
+<!ELEMENT copyright (#PCDATA)> 
+<!ELEMENT docdata (djn)> 
+
+<!-- ****************************************************************** -->
+<!-- djn: Dow Jones Newswires Composite Feed 5/6 document keys -->
+
+<!ELEMENT djn (djn-newswires)>
+<!ELEMENT djn-newswires (
+	djn-press-cutout
+	, djn-urgency
+	, djn-mdata
+	, djn-internal?
+)>
+<!ELEMENT djn-press-cutout (#PCDATA)>
+<!ELEMENT djn-urgency (#PCDATA)>
+<!ELEMENT djn-mdata (
+	djn-derived-data?
+	, djn-coding
+	, supplemental-coding*
+	, byline*
+	, dateline?
+	, djii-coding?
+	, tr-coding?
+	, third-party?
+)>
+<!ELEMENT djn-coding (
+	djn-company?
+	, djn-company-sig?
+	, djn-isin?
+	, djn-isin-sig?
+	, djn-industry? 
+	, djn-government?
+	, djn-page?
+	, djn-subject?
+	, djn-market?
+	, djn-product?
+	, djn-geo?
+	, djn-stat?
+	, djn-journal?
+	, djn-routing?
+	, djn-content?
+	, djn-function?
+)>
+<!ELEMENT djn-company (c)* >
+<!ELEMENT djn-company-sig (c)* >
+<!ELEMENT djn-isin (c)* >
+<!ELEMENT djn-isin-sig (c)* >
+<!ELEMENT djn-industry (c)* >
+<!ELEMENT djn-government (c)* >
+<!ELEMENT djn-page (c)* >
+<!ELEMENT djn-subject (c)* >
+<!ELEMENT djn-market (c)* >
+<!ELEMENT djn-product (c)* >
+<!ELEMENT djn-geo (c)* >
+<!ELEMENT djn-stat (c)* >
+<!ELEMENT djn-journal (c)* >
+<!ELEMENT djn-routing (c)* >
+<!ELEMENT djn-content (c)* >
+<!ELEMENT djn-function (c)* >
+<!ELEMENT c (#PCDATA) >
+
+<!ELEMENT djn-internal (#PCDATA)>
+
+<!-- Supplemental coding -->
+<!ELEMENT supplemental-coding (organization*) >
+<!ELEMENT organization (
+	djn-orgid?
+	, ticker?
+	, cusip?
+	, isin?
+	, sedol?
+	, sp-gvkey?
+	, sp-iid?
+)>
+<!ELEMENT djn-orgid (#PCDATA) >
+<!ELEMENT ticker (#PCDATA) >
+<!ELEMENT cusip (#PCDATA) >
+<!ELEMENT isin (#PCDATA) >
+<!ELEMENT sedol (#PCDATA) >
+<!ELEMENT sp-gvkey (#PCDATA) >
+<!ELEMENT sp-iid (#PCDATA) >
+
+<!-- Derived data or DJ Lexicon -->
+<!ELEMENT djn-derived-data (djn-wordcount) >
+<!ELEMENT djn-wordcount (djn-take, djn-dictionary*) >
+<!ELEMENT djn-take (djn-headline, djn-body) >
+<!ELEMENT djn-dictionary (djn-headline, djn-body) >
+<!ELEMENT djn-headline (term*) >
+<!ELEMENT djn-body (term*) >
+<!ELEMENT term (#PCDATA) >
+
+<!-- DJII Coding -->
+<!ELEMENT djii-coding (
+	Codes?
+)>
+
+<!ELEMENT Codes (
+	CodeSet*
+)>
+
+<!ELEMENT CodeSet (
+	Code*
+)>
+
+<!ELEMENT Code (
+	CodeImportLvl*
+	, CodeInstances?
+)>
+
+<!ELEMENT CodeImportLvl ANY>
+
+<!ELEMENT CodeInstances (
+	CodeI?
+)>
+
+<!ELEMENT CodeI (
+	CodeA?
+)>
+
+<!ELEMENT CodeA ANY>
+
+<!-- DJII Element Attributes -->
+
+<!ATTLIST CodeSet
+	codeCat (co|ns|re|in|pe|cur|idx|icb|djn|rst|tpc|ncat|orgtype|fpco|fppe) #IMPLIED
+>
+
+<!ATTLIST Code
+	subCat CDATA #IMPLIED
+	why (about|occur|lineage|association|relevance|significant) #IMPLIED
+	value CDATA #IMPLIED
+>
+
+<!ATTLIST CodeI
+	action (del|add) #IMPLIED
+	org CDATA #IMPLIED
+>
+
+<!ATTLIST CodeA
+	name CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+
+<!-- TR Coding -->
+<!ELEMENT tr-coding (
+	tr-ric?
+	, tr-topic?
+	, tr-named-item?
+)>
+<!ELEMENT tr-ric (c)* >
+<!ELEMENT tr-topic (c)* >
+<!ELEMENT tr-named-item (c)* >
+
+<!-- Third Party Metadata -->
+<!ELEMENT third-party (
+	tpc*
+)>
+<!ATTLIST tpc
+	type CDATA #REQUIRED
+>
+<!ELEMENT tpc (#PCDATA)>
+
+<!-- ****************************************************************** -->
+<!-- body: The item itself -->
+
+<!ELEMENT body (headline, text, summary*)>
+
+<!ELEMENT headline (#PCDATA | hl1 | hl2)*>
+<!ELEMENT hl1 (#PCDATA)>
+<!ELEMENT hl2 (#PCDATA)>
+
+<!ELEMENT byline EMPTY>
+<!ELEMENT dateline (#PCDATA)>
+<!ELEMENT text (%text;)*>
+<!ELEMENT summary (%text;)*>
+
+<!-- ****************************************************************** -->
+<!-- text: Text blocks -->
+
+<!ELEMENT pre (#PCDATA)> 
+<!ELEMENT p (%text;)*> 
+
+<!-- ****************************************************************** -->
+<!-- phrases: things within text blocks -->
+
+<!ELEMENT a (#PCDATA) >
+
+<!-- ****************************************************************** -->
+<!-- ****************************************************************** -->
+<!-- ****************************************************************** -->
+
+<!-- attributes -->
+
+<!ATTLIST doc
+	DTDVersion CDATA #FIXED "DJNML-XML 1.0a"
+	DTDModified CDATA #FIXED "20010329T1500Z"
+	msize CDATA #REQUIRED
+	md5 CDATA #IMPLIED 
+	transmission-date CDATA #REQUIRED  
+	destination CDATA "AW"
+	distId CDATA #IMPLIED
+	sysId CDATA #IMPLIED
+>
+<!ATTLIST djnml 
+	%xml;
+	docdate CDATA #REQUIRED
+	publisher ( %DJN-Publishers; ) "DJN" 
+	product CDATA #REQUIRED 
+	seq CDATA #REQUIRED
+>
+<!ATTLIST doc-retransmission
+	docdate CDATA #REQUIRED
+	publisher (DJN) "DJN" 
+	product CDATA #REQUIRED
+	seq CDATA #REQUIRED
+	done (0|1) #IMPLIED
+>
+<!ATTLIST good-day 
+	docdate CDATA #REQUIRED
+	publisher ( %DJN-Publishers; ) "DJN" 
+	product CDATA #REQUIRED
+	last-seq CDATA #IMPLIED
+	type (morning|night) #REQUIRED
+>
+<!ATTLIST doc-delete
+	docdate CDATA #REQUIRED
+	publisher (DJN) "DJN" 
+	product CDATA #REQUIRED 
+	seq CDATA #REQUIRED
+	reason (expire|not-available|purge) "purge"
+>
+<!ATTLIST doc-modify
+	docdate CDATA #REQUIRED
+	publisher (DJN) "DJN" 
+	product CDATA #REQUIRED 
+	seq CDATA #REQUIRED
+>
+<!ATTLIST modify-replace
+	xpath CDATA #REQUIRED
+>
+<!ATTLIST bulk-download
+	state (begin|end) #REQUIRED
+>
+<!ATTLIST operational-notice
+	mcode ( %DJN-MCodes; ) "0" 
+>
+
+<!-- Derived data attributes -->
+<!ATTLIST djn-take
+	total-words CDATA #REQUIRED
+>
+<!ATTLIST djn-dictionary
+	short-name CDATA #REQUIRED
+	version CDATA #REQUIRED
+>
+<!ATTLIST djn-headline
+	total-words CDATA #REQUIRED
+>
+<!ATTLIST djn-body
+	total-words CDATA #REQUIRED
+>
+<!ATTLIST term
+	count CDATA #REQUIRED
+	pos-info CDATA #IMPLIED
+>
+
+<!-- Supplemental coding attributes -->
+<!ATTLIST supplemental-coding
+	source CDATA #REQUIRED
+>
+<!ATTLIST djn-orgid
+	id CDATA #REQUIRED
+>
+<!ATTLIST ticker
+	id CDATA #REQUIRED
+>
+<!ATTLIST cusip
+	id CDATA #REQUIRED
+>
+<!ATTLIST isin
+	id CDATA #REQUIRED
+>
+<!ATTLIST sedol
+	id CDATA #REQUIRED
+>
+<!ATTLIST sp-gvkey
+	id CDATA #REQUIRED
+>
+<!ATTLIST sp-iid
+	id CDATA #REQUIRED
+>
+
+<!-- Significance: Mentioned, About, Significant, Turning point -->
+<!ATTLIST c
+	mentioned (Y|N) #IMPLIED
+	about (Y|N) #IMPLIED
+	significant (Y|N) #IMPLIED
+	tpoint (Y|N) #IMPLIED
+>
+
+<!-- ****************************************************************** -->
+<!-- ****************************************************************** -->
+
+<!ATTLIST body
+	%xml;
+>
+<!ATTLIST p
+	%xml;
+>
+<!ATTLIST pre
+	%xml;      
+>
+<!ATTLIST a
+	%xml;
+	%xlink;
+>
+<!ATTLIST headline
+	%xml;
+	prefix CDATA #IMPLIED 
+	brand-display CDATA #IMPLIED 
+>
+<!ATTLIST copyright
+	year CDATA #IMPLIED
+	holder CDATA #IMPLIED
+> 
+<!ATTLIST djn-newswires
+	news-source CDATA #REQUIRED
+	origin CDATA "DJ"
+	service-id CDATA "CO" 
+>
+<!ATTLIST djn-mdata
+	brand CDATA "DJN" 
+	temp-perm ( %DJN-Temp-Perm; ) "P"
+	retention ( %DJN-Retention; ) "N" 
+	hot ( %DJN-Flag; ) "N" 
+	original-source CDATA #REQUIRED 
+	accession-number CDATA #REQUIRED
+	page-citation CDATA #IMPLIED 
+	display-date CDATA #REQUIRED 
+	wsj-id CDATA #IMPLIED
+>
+<!ATTLIST text
+	%xml;
+>
+<!ATTLIST summary
+	%xml;
+>
+<!ATTLIST byline 
+	name CDATA #REQUIRED
+	title CDATA #IMPLIED
+	org CDATA #REQUIRED
+	phone CDATA #IMPLIED
+	email CDATA #IMPLIED
+>
+<!-- The End -->
