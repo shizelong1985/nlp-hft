@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE doc SYSTEM "djnml-1.0b.dtd">
+<doc msize="000001995" md5="506b1292df23f98b37cf0f6a0137cd97" sysId="sbknwsarchp1" destination="AW" distId="    " transmission-date="                " >
+<djnml publisher="DJN" docdate="20200324" product="DN" seq="66" xml:lang="en-us" >
+<head>
+<copyright year="2020" holder="Dow Jones &amp; Company, Inc." ></copyright>
+<docdata>
+<djn>
+<djn-newswires news-source="DJDN" origin="DJ" service-id="CO" >
+<djn-press-cutout/>
+<djn-urgency>0</djn-urgency>
+<djn-mdata brand="DJ" temp-perm="P" retention="N" hot="N" original-source="CM" accession-number="20200324000066" page-citation="" display-date="20200324T041012.206Z" >
+<djn-coding>
+<djn-page>
+<c>4199</c>
+</djn-page>
+<djn-subject>
+<c>N/BKG</c>
+<c>N/CMDI</c>
+<c>N/CMR</c>
+<c>N/DJG</c>
+<c>N/DJG7</c>
+<c>N/DJGP</c>
+<c>N/DJGS</c>
+<c>N/DJGV</c>
+<c>N/DJI</c>
+<c>N/DJIB</c>
+<c>N/DJIV</c>
+<c>N/DJMS</c>
+<c>N/DN</c>
+<c>N/EWR</c>
+<c>N/FNVW</c>
+<c>N/FXW</c>
+<c>N/WED</c>
+<c>N/WER</c>
+<c>N/BON</c>
+<c>N/DJWI</c>
+<c>N/EMP</c>
+<c>N/FCTV</c>
+<c>N/FIN</c>
+<c>N/ICM</c>
+<c>N/SDT</c>
+<c>N/TAB</c>
+<c>N/TSY</c>
+</djn-subject>
+<djn-market>
+<c>M/NND</c>
+</djn-market>
+<djn-product>
+<c>P/AEQI</c>
+<c>P/AFXI</c>
+<c>P/BFX</c>
+<c>P/FNVW</c>
+<c>P/PSH</c>
+</djn-product>
+<djn-geo>
+<c>R/NME</c>
+<c>R/US</c>
+</djn-geo>
+</djn-coding>
+</djn-mdata>
+</djn-newswires>
+</djn>
+</docdata>
+</head>
+<body>
+<headline brand-display="DJ" >
+10-Yr Benchmark Govt Yields - U.S. vs Other Nations</headline>
+<text>
+<pre>
+ 
+                  Current      Spread in 
+                  Yield        Basis Points 
+ 
+  U.S.            0.812 % 
+  Australia       0.890 %        7.8 
+  Belgium         0.149 %      -66.3 
+  Canada          0.791 %       -2.1 
+  Denmark        -0.183 %      -99.6 
+  France          0.115 %      -69.8 
+  Germany        -0.378 %     -119.1 
+  Italy           1.625 %       81.2 
+  Japan           0.034 %      -77.8 
+  Netherlands    -0.119 %      -93.2 
+  Spain           0.757 %       -5.6 
+  Sweden         -0.029 %      -84.1 
+  U.K.            0.418 %      -39.4 
+ 
+Source: Tullett Prebon via FactSet 
+ </pre>
+<p>
+  (END) Dow Jones Newswires</p>
+<p>
+  March 24, 2020 00:10 ET (04:10 GMT)</p>
+</text>
+</body>
+</djnml>
+</doc>
