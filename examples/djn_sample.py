@@ -1,6 +1,7 @@
 import json
-
+from string import punctuation
 import nltk
+from nltk import word_tokenize
 import pandas as pd
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -10,28 +11,93 @@ import matplotlib.pyplot as plt
 with open(r'C:\Users\nrapa\git\nlp-hft\data\DowJones_Newswires\sample\sample.txt') as json_file:
     data = json.load(json_file)
 
-corpus = [el['text'] for el in data['2020-03-23']]
+def count_documents(data):
+    n_documents = [len(data[date]) for date in data]
+    print(f'Total Number of Documents: {sum(n_documents)}')
+    n_documents = dict(zip(data.keys(), n_documents))
+    return n_documents
 
-nltk.download('stopwords')
-stopwords = nltk.corpus.stopwords.words("english")
+# Remove articles with no stocks tagged
+data_tagged = {}
+data_tagged_single = {}
+for date in data:
+    data_tagged[date] = []
+    data_tagged_single[date] = []
+    for doc in data[date]:
+        if doc['isins'] is not None:
+            data_tagged[date].append(doc)
+            if len(doc['isins']) == 1:
+                doc['isin'] = doc['isins'][0]
+                data_tagged_single[date].append(doc)
+
+# Count documents
+count_documents(data)
+count_documents(data_tagged)
+count_documents(data_tagged_single)
+
+del data
+del data_tagged
+
+# Define stopwords
+nltk.download('punkt')
+nltk.download('stopwords') #(Item 70 from http://www.nltk.org/nltk_data/)
+nltk.download('words')
+nltk.download('wordnet')
+stopwords = nltk.corpus.stopwords.words("english") + list(punctuation)
+
 more_stopwords = [
     # 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
     # 'november', 'december',
     # 'end', 'et', 'gmt',
-    'benzinga', 'ratings', 'action', 'actions', 'follow',
+    # 'benzinga', 'ratings', 'action', 'actions', 'follow',
     # '2020', '23', 'com',
     # 'dow', 'jones', 'trading', 'newswires', 'www', 'source', 'https'
 ]
 stopwords = stopwords + more_stopwords
 
+from porter2stemmer import Porter2Stemmer
+from nltk.stem import WordNetLemmatizer
+wordnet_lemmatizer = WordNetLemmatizer()
+
+def tokenize(text):
+    # tokenize
+    words = word_tokenize(text)
+    # convert to lower case
+    words = [w.lower() for w in words]
+    # remove common stop words, delete numbers, punctuations, special symbols, and non-English words
+    tokens = [w for w in words if w not in stopwords and not w.isdigit()]
+
+    # lemmatization
+    wordnet_lemmatizer = WordNetLemmatizer()
+    stems = []
+    for item in tokens:
+        stems.append(wordnet_lemmatizer.lemmatize(item))
+
+    # stemming
+    # stemmer = Porter2Stemmer()
+    # stems = []
+    # for item in tokens:
+    #     stems.append(stemmer.stem(item))
+
+    return stems
+
+# Define corpus
+date ='2020-03-26'
+corpus = [el['text'] for el in data_tagged_single[date]]
+
+
+
 vectorizer = TfidfVectorizer(
-    sublinear_tf=False,
-    min_df=5,
+    sublinear_tf=True,
+    # min_df=5,
+    max_df=0.5,
     norm='l2',
-    encoding='latin-1',
-    ngram_range=(1, 2),
-    stop_words=stopwords,
-    smooth_idf=False,
+    # encoding='latin-1',
+    ngram_range=(1,1),
+    # stop_words=stopwords,
+    smooth_idf=True,
+    tokenizer=tokenize,
+    use_idf=True,
 )
 
 tdm = vectorizer.fit_transform(corpus)
@@ -51,58 +117,4 @@ wc = WordCloud(
 wc.generate_from_frequencies(tfidf_means)
 plt.imshow(wc)
 
-# plt.show()
-#
-# w = WordCloud(width=800,height=600,mode='RGBA',background_color='white',max_words=200).fit_words(freqs)
-#
-#
-# # print(vectorizer.get_feature_names())
-# #
-# # print(tdm.shape)
-#
-# # documents = [doc.replace('\n', ' ').split() for doc in documents]
-# #
-# # documents = [[word for word in sublist if (len(word)>1)]
-# #              for sublist in documents]
-# #
-# # documents = [[word.lower() for word in sublist]
-# #              for sublist in documents]
-# #
-# # symbols = "!\"#$%&()*+-./:;<=>?@[\]^_`{|}~\'"
-# # for i in symbols:
-# #     documents = [[''.join([char for char in word if char != i])
-# #                   for word in sublist]
-# #                   for sublist in documents]
-# #
-# # dfs = {}
-# # for i in range(len(documents)):
-# #     for word in documents[i]:
-# #         try:
-# #             dfs[word].add(i)
-# #         except:
-# #             dfs[word] = {i}
-# #
-# # for i in dfs:
-# #     dfs[i] = len(dfs[i])
-# #
-# # tf_idf = {}
-# # for i in range(len(documents)):
-# #     counter = Counter(documents[i])
-# #     for token in np.unique(documents[i]):
-# #         tf = counter[token]/len(documents[i])
-# #         df = dfs[token]
-# #         idf = np.log(len(documents)/(df+1))
-# #         tf_idf[i, token] = tf*idf
-# #
-# # # Visualization
-# #
-# # word_cloud_dict = {}
-# # for key, val in tf_idf.items():
-# #     if key[1] not in word_cloud_dict or val > word_cloud_dict[key[1]]:
-# #         word_cloud_dict[key[1]] = val
-# #
-# # wordcloud = WordCloud().generate_from_frequencies(word_cloud_dict)
-# #
-# # plt.imshow(wordcloud, interpolation='bilinear')
-# # plt.axis("off")
-# # plt.show()
+

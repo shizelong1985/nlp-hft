@@ -6,7 +6,9 @@ from tqdm import tqdm
 
 def parse_document(doc):
     document = {}
-    document['text'] = doc.body.text
+    document['headline'] = doc.find('headline').get_text()
+    document['text'] = doc.find('text').get_text()
+    document['text_all'] = doc.body.text
     document['seq'] = doc.get('seq')
     document['publisher'] = doc.get('publisher')
     document['product'] = doc.get('product')
@@ -20,7 +22,7 @@ def parse_document(doc):
         isins = doc.find('djn-isin')
         document['isins'] = [el.get_text() for el in isins.find_all('c')]
     except:
-        pass
+        document['isins'] = None
 
     return document
 
