@@ -46,16 +46,18 @@ nltk.download('wordnet')
 stopwords = nltk.corpus.stopwords.words("english") + list(punctuation)
 
 more_stopwords = [
-    # 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
-    # 'november', 'december',
-    # 'end', 'et', 'gmt',
-    # 'benzinga', 'ratings', 'action', 'actions', 'follow',
-    # '2020', '23', 'com',
-    # 'dow', 'jones', 'trading', 'newswires', 'www', 'source', 'https'
+    'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
+    'november', 'december',
+    'end', 'et', 'gmt',
+    'benzinga', 'ratings', 'action', 'actions', 'follow',
+    '2020', '23', 'com',
+    'dow', 'jones', 'trading', 'newswires', 'www', 'source', 'https', 'http',
+    'follow', 'company', 'service', 'statement', 'rating', '212-416-2800', 'info', 'insider',
+    'business', 'source', 'inc.', 'from_', 'data_',  'date', 'data', 'form', 'dir', 'said', 'sell', 'buy',
 ]
 stopwords = stopwords + more_stopwords
 
-from porter2stemmer import Porter2Stemmer
+# from porter2stemmer import Porter2Stemmer
 from nltk.stem import WordNetLemmatizer
 wordnet_lemmatizer = WordNetLemmatizer()
 
@@ -85,15 +87,30 @@ def tokenize(text):
 date ='2020-03-26'
 corpus = [el['text'] for el in data_tagged_single[date]]
 
+# From scratch
+# ###########################
+# preprocessing
+
+# corpus = [tokenize(text) for text in corpus]
+#
+#
+# dfs = {}
+# for i in range(len(corpus)):
+#     for word in corpus[i]:
+#         try:
+#             dfs[word].add(i)
+#         except:
+#             dfs[word] = {i}
+#############################################
 
 
 vectorizer = TfidfVectorizer(
-    sublinear_tf=True,
+    sublinear_tf=False,
     # min_df=5,
-    max_df=0.5,
+    # max_df=0.5,
     norm='l2',
     # encoding='latin-1',
-    ngram_range=(1,1),
+    ngram_range=(1,2),
     # stop_words=stopwords,
     smooth_idf=True,
     tokenizer=tokenize,
@@ -116,5 +133,6 @@ wc = WordCloud(
 
 wc.generate_from_frequencies(tfidf_means)
 plt.imshow(wc)
+
 
 
